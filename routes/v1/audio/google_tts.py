@@ -97,12 +97,18 @@ def generate_gemini_speech(job_id, data):
         with open(save_path, "wb") as f:
             f.write(audio_bytes)
 
+
         # ใช้ฟังก์ชันอัปโหลดของ NCA (ซึ่งจะเก็บ Local ถ้าไม่มี Cloud)
-        cloud_url = upload_file(save_path)
+        try:
+            cloud_url = upload_file(save_path)
+            
+            # ถ้าระบบคืนค่าเป็น URL มาให้ (ไม่ว่าจะ Local หรือ Cloud)
+            if isinstance(cloud_url, str) and (cloud_url.startswith('http') or cloud_url.startswith('/static')):
+                return cloud_url, "/v1/audio/gemini-tts", 200
         
-        # ถ้าระบบคืนค่าเป็น URL มาให้ (ไม่ว่าจะ Local หรือ Cloud)
-        if isinstance(cloud_url, str) and (cloud_url.startswith('http') or cloud_url.startswith('/static')):
-            return cloud_url, "/v1/audio/gemini-tts", 200
+        except ValueError as e:
+            # ไม่มี cloud storage ที่ตั้งค่าไว้ - ส่งไฟล์โดยตรงแทน
+            logger.warning(f"Job {job_id}: No cloud storage configured ({str(e)}), returning file directly")
         
         # กรณีฉุกเฉิน: ถ้า upload_file พังหรือไม่คืน URL ให้ส่งไฟล์กลับตรงๆ เลย
         return send_file(save_path, mimetype="audio/wav")
