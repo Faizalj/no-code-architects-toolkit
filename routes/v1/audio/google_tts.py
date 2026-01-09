@@ -7,8 +7,7 @@ import struct
 import mimetypes
 
 # สร้าง Blueprint เพื่อให้ NCA Toolkit มองเห็น
-gemini_tts_bp = Blueprint('gemini_tts', __name__)
-
+blueprint = Blueprint('gemini_tts', __name__)
 # --- Helper Functions จากโค้ดเดิมของคุณ ---
 def parse_audio_mime_type(mime_type: str):
     bits_per_sample = 16
@@ -46,7 +45,7 @@ def convert_to_wav(audio_data: bytes, mime_type: str) -> bytes:
     return header + audio_data
 
 # --- API Endpoint ---
-@gemini_tts_bp.route('/v1/audio/gemini-tts', methods=['POST'])
+@blueprint.route('/v1/audio/gemini-tts', methods=['POST'])
 def generate_gemini_speech():
     try:
         # 1. รับค่าจาก Request
