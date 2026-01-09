@@ -111,7 +111,18 @@ def generate_gemini_speech(job_id, data):
             logger.warning(f"Job {job_id}: No cloud storage configured ({str(e)}), returning file directly")
         
         # กรณีฉุกเฉิน: ถ้า upload_file พังหรือไม่คืน URL ให้ส่งไฟล์กลับตรงๆ เลย
-        return send_file(save_path, mimetype="audio/wav")
+        # อ่านไฟล์และ encode เป็น base64 เพื่อส่งกลับ
+        import base64
+        with open(save_path, "rb") as f:
+            audio_data = f.read()
+        
+        # Return base64 encoded audio with proper format
+        audio_base64 = base64.b64encode(audio_data).decode('utf-8')
+        return {
+            "audio_base64": audio_base64,
+            "mimetype": "audio/wav",
+            "filename": os.path.basename(save_path)
+        }, "/v1/audio/gemini-tts", 200
 
     except Exception as e:
         logger.error(f"Job {job_id}: Error - {str(e)}")
