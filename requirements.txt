@@ -16,6 +16,7 @@ google-api-core
 google-cloud-storage
 google-cloud-run
 google-cloud-texttospeech
+google-genai
 psutil
 boto3
 Pillow
